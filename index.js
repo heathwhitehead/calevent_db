@@ -101,7 +101,8 @@ app.post('/api/flyers', upload.single('image'), async (req, res) => {
             user_email: req.body.user_email,
             capacity: Number(req.body.capacity),
             timeOfEvent: req.body.timeOfEvent,
-            location: req.body.location
+            location: req.body.location,
+			usersInterested: 0
         });
 
         const savedFlyer = await newFlyer.save();
@@ -143,6 +144,25 @@ app.post('/api/users', async (req, res) => {
     } catch (error) {
         console.error("User Creation Error:", error);
         res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
+
+// UPDATES LOCATION FOR LOGGED IN USER
+app.patch('/api/users/:email/location', async (req, res) => {
+    try {
+        const updatedUser = await User.findOneAndUpdate(
+            { email: req.params.email.toLowerCase() },
+            { current_location: req.body.new_location },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 

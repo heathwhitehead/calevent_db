@@ -45,6 +45,20 @@ app.get('/api/flyers', async (req, res) => {
   }
 });
 
+app.get('/api/users', async (req, res) => {
+  try {
+    // 1. Fetch data from MongoDB
+    const users = await User.find().sort({ createdAt: -1 }); // Newest first
+    
+    // 2. Send successful response
+    res.status(200).json(users);
+  } catch (error) {
+    // 3. Handle errors gracefully
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Server error while fetching users" });
+  }
+});
+
 for (let line of startupMessage.split("\n")) {
 	console.log(line)
 }

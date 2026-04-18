@@ -29,7 +29,8 @@ mongoose.connect(mongoURL)
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
-const Flyer = require('./models/Flyer'); // Make sure path is correct
+const Flyer = require('./models/Flyer');
+const User = require('./models/User')
 
 app.get('/api/flyers', async (req, res) => {
   try {

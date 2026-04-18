@@ -113,7 +113,7 @@ app.post('/api/flyers', upload.single('image'), async (req, res) => {
 
 app.post('/api/users', async (req, res) => {
     try {
-        const { email, username, password, location } = req.body;
+        const { email, username, password } = req.body;
 
         // 1. Basic Validation: Make sure an email was actually sent
         if (!email) {
@@ -131,7 +131,7 @@ app.post('/api/users', async (req, res) => {
             email: email.toLowerCase(),
             username: username,
 			password: password,
-            location: location
+            current_location: "Lawrence, KS"
         });
 
         // 4. Save to MongoDB

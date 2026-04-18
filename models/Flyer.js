@@ -7,7 +7,8 @@ const flyerSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   capacity: Number,
   timeOfEvent: String,
-  location: String
+  location: String,
+  usersInterested: Number
 });
 
 module.exports = mongoose.model('Flyer', flyerSchema);

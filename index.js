@@ -37,8 +37,8 @@ mongoose.connect(mongoURL)
 app.get('/', (req, res) => res.send('Hello World!'))
 
 const s3 = new S3Client({
-	endpoint: "https://calevent-flyers.sfo3.digitaloceanspaces.com",
-	region: "us-west-1",
+	endpoint: "https://sfo3.digitaloceanspaces.com",
+	region: "us-east-1",
 	credentials: {
 		accessKeyId: process.env.SPACES_KEY,
 		secretAccessKey: process.env.SPACES_SECRET

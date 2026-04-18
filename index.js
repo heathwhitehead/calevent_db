@@ -3,6 +3,8 @@ const app = express()
 const port = process.env.PORT || 3000
 require('dotenv').config()
 
+app.use(express.json());
+
 const { S3Client } = require('@aws-sdk/client-s3')
 const multer = require('multer')
 const multerS3 = require('multer-s3')

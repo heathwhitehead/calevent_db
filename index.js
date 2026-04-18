@@ -109,6 +109,40 @@ app.post('/api/flyers', upload.single('image'), async (req, res) => {
     }
 })
 
+app.post('/api/users', async (req, res) => {
+    try {
+        const { email, username, location } = req.body;
+
+        // 1. Basic Validation: Make sure an email was actually sent
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        // 2. Check if user already exists (Prevents Mongoose "unique" errors)
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(400).json({ message: "User with this email already exists" });
+        }
+
+        // 3. Create the new user
+        const newUser = new User({
+            email: email.toLowerCase(),
+            username: username,
+            location: location
+        });
+
+        // 4. Save to MongoDB
+        const savedUser = await newUser.save();
+
+        // 5. Send back the success response
+        res.status(201).json(savedUser);
+
+    } catch (error) {
+        console.error("User Creation Error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
+
 for (let line of startupMessage.split("\n")) {
 	console.log(line)
 }

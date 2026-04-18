@@ -1,6 +1,11 @@
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000
+require('dotenv').config()
+
+const { S3Client } = require('@aws-sdk/client-s3')
+const multer = require('multer')
+const multerS3 = require('multer-s3')
 
 const startupMessage = `[48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m[38;2;0;170;255m▄[48;2;0;0;0m[38;2;0;179;247m▄[48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;180;248m[38;2;0;0;0m▄[48;2;0;179;247m [48;2;0;179;247m [48;2;0;175;247m[38;2;0;179;247m▄[48;2;0;0;0m[38;2;0;179;247m▄[48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [0m
 [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;170;255m [48;2;0;180;247m[38;2;0;159;236m▄[48;2;0;180;240m[38;2;0;179;247m▄[48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;255;255m[38;2;0;0;0m▄[48;2;0;179;247m[38;2;0;179;246m▄[48;2;0;179;247m [48;2;0;179;247m [48;2;0;179;247m [48;2;0;179;247m [48;2;0;0;0m[38;2;0;179;247m▄[48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [0m
@@ -28,6 +33,28 @@ mongoose.connect(mongoURL)
 	.catch(err => console.error("ERROR CONNECTING TO MONGODB", error));
 
 app.get('/', (req, res) => res.send('Hello World!'))
+
+const s3 = new S3Client({
+	endpoint: "https://calevent-flyers.sfo3.digitaloceanspaces.com",
+	region: "us-west-1",
+	credentials: {
+		accessKeyId: process.env.SPACES_KEY,
+		secretAccessKey: process.env.SPACES_SECRET
+	}
+});
+
+const upload = multer({
+	storage: multerS3({
+		s3: s3,
+		bucket: "calevent-flyers",
+		acl: 'public-read',
+		contentType: multerS3.AUTO_CONTENT_TYPE,
+		key: function (req, file, cb) {
+			cb(null, Date.now().toString() + "-" +file.originalname);
+		}
+	})
+});
+
 
 const Flyer = require('./models/Flyer');
 const User = require('./models/User');
@@ -59,6 +86,28 @@ app.get('/api/users', async (req, res) => {
     res.status(500).json({ message: "Server error while fetching users" });
   }
 });
+
+app.post('/api/flyers', upload.single('image'), async (req, res) => {
+	try {
+		if (!req.file) {
+			return res.status(400).send("No image uploaded");
+		}
+		
+		const newFlyer = new Flyer({
+            title: req.body.title,
+            image_url: req.file.location, // The link to the Space!
+            user_email: req.body.user_email,
+            capacity: Number(req.body.capacity),
+            timeOfEvent: req.body.timeOfEvent,
+            location: req.body.location
+        });
+
+        const savedFlyer = await newFlyer.save();
+        res.status(201).json(savedFlyer);
+    } catch (error) {
+        res.status(500).json({ message: "Upload failed", error: error.message });
+    }
+})
 
 for (let line of startupMessage.split("\n")) {
 	console.log(line)

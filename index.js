@@ -19,7 +19,31 @@ const startupMessage = `[48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m
 [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;128;255;255m[38;2;0;0;0m▄[48;2;16;230;242m[38;2;0;0;0m▄[48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;222;235;235m[38;2;0;0;0m▄[48;2;222;235;235m[38;2;0;0;0m▄[48;2;222;235;235m[38;2;255;255;255m▄[48;2;222;235;235m[38;2;228;228;228m▄[48;2;222;235;235m[38;2;223;236;236m▄[48;2;222;235;235m[38;2;221;234;234m▄[48;2;222;235;235m [48;2;222;235;235m[38;2;223;235;235m▄[48;2;222;235;235m[38;2;223;235;235m▄[48;2;222;235;235m[38;2;219;237;237m▄[48;2;222;235;235m[38;2;255;255;255m▄[48;2;222;235;235m[38;2;0;0;0m▄[48;2;222;236;236m[38;2;0;0;0m▄[48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [48;2;0;0;0m [0m
 `
 
+const mongoose = require('mongoose');
+
+const mongoURL = process.env.DATABASE_URL;
+
+mongoose.connect(mongoURL)
+	.then(() => console.log("MONGODB CONNECTION SUCCESS"))
+	.catch(err => console.error("ERROR CONNECTING TO MONGODB", error));
+
 app.get('/', (req, res) => res.send('Hello World!'))
+
+const Flyer = require('./models/Flyer'); // Make sure path is correct
+
+app.get('/api/flyers', async (req, res) => {
+  try {
+    // 1. Fetch data from MongoDB
+    const flyers = await Flyer.find().sort({ createdAt: -1 }); // Newest first
+    
+    // 2. Send successful response
+    res.status(200).json(flyers);
+  } catch (error) {
+    // 3. Handle errors gracefully
+    console.error("Error fetching flyers:", error);
+    res.status(500).json({ message: "Server error while fetching flyers" });
+  }
+});
 
 for (let line of startupMessage.split("\n")) {
 	console.log(line)

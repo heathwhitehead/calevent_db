@@ -25,4 +25,4 @@ for (let line of startupMessage.split("\n")) {
 	console.log(line)
 }
 
-app.listen(port, () => console.log(`sample-expressjs app listening on port ${port}!`))
+app.listen(port, () => console.log(`calevent-db app listening on port ${port}!`))

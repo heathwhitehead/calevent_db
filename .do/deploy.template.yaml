@@ -1,5 +1,5 @@
 spec:
-  name: calevent_db
+  name: calevent-db
   services:
   - environment_slug: node-js
     git:
@@ -7,4 +7,4 @@ spec:
       repo_clone_url: https://github.com/heathwhitehead/calevent_db
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-0.5gb
-    name: calevent_db
+    name: calevent-db

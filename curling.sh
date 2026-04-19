@@ -7,4 +7,5 @@ curl -X POST https://calevent-db-mkxw5.ondigitalocean.app/api/flyers \
 -F "image=@$4" \
 -F "timeOfEvent=$5" \
 -F "dateOfEvent=$6" \
--F "capacity=$7"
+-F "capacity=$7" \
+-F "organizer=$8

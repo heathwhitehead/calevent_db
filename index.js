@@ -125,10 +125,13 @@ app.post('/api/flyers', upload.single('image'), async (req, res) => {
 		const newFlyer = new Flyer({
             title: req.body.title,
             image_url: req.file.location, // The link to the Space!
+            description: req.body.description,
             user_email: req.body.user_email,
             capacity: Number(req.body.capacity),
             timeOfEvent: req.body.timeOfEvent,
+            dateOfEvent: req.body.dateOfEvent,
             location: req.body.location,
+            organizer: req.body.organizer,
 			usersInterested: 0
         });
 

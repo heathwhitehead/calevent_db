@@ -200,22 +200,18 @@ app.post('/api/users', async (req, res) => {
 });
 
 // UPDATES LOCATION FOR LOGGED IN USER
-app.patch('/api/users/:email/city', async (req, res) => {
-    try {
-        const updatedUser = await User.findOneAndUpdate(
-            { email: req.params.email.toLowerCase() },
-            { current_city: req.body.new_city },
-            { new: true }
-        );
-
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        res.status(200).json(updatedUser);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+app.patch('/api/users/:id', async (req, res) => {
+  try {
+    const { current_location } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id, 
+      { current_location }, 
+      { new: true } // Returns the updated document
+    );
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Update failed", error });
+  }
 });
 
 app.patch('/api/events/:flyerId/like', async (req, res) => {

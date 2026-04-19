@@ -62,17 +62,44 @@ const Flyer = require('./models/Flyer');
 const User = require('./models/User');
 
 app.get('/api/flyers', async (req, res) => {
-  try {
-    // 1. Fetch data from MongoDB
-    const flyers = await Flyer.find().sort({ createdAt: -1 }); // Newest first
-    
-    // 2. Send successful response
-    res.status(200).json(flyers);
-  } catch (error) {
-    // 3. Handle errors gracefully
-    console.error("Error fetching flyers:", error);
-    res.status(500).json({ message: "Server error while fetching flyers" });
-  }
+    try {
+        // 1. Initialize an empty query object
+        let query = {};
+
+        // 2. Handle Location Filtering
+        // Example: /api/flyers?location=Lawrence
+        if (req.query.location) {
+            query.location = req.query.location;
+        }
+
+        // 3. Handle Date Range Filtering (YYYY-MM-DD)
+        // Example: /api/flyers?start=2026-04-19&end=2026-04-25
+        if (req.query.start && req.query.end) {
+            query.dateOfEvent = {
+                $gte: req.query.start, 
+                $lte: req.query.end
+            };
+        } 
+        // 4. Handle "From Today Onwards" (Optional but useful!)
+        // Example: /api/flyers?upcoming=true
+        else if (req.query.upcoming === 'true') {
+            const today = new Date().toISOString().split('T')[0];
+            query.dateOfEvent = { $gte: today };
+        }
+
+        // 5. Execute search, sort by date (closest first), and send response
+        const flyers = await Flyer.find(query).sort({ dateOfEvent: 1 });
+        
+        console.log(`Found ${flyers.length} flyers matching query:`, query);
+        res.status(200).json(flyers);
+
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        res.status(500).json({ 
+            message: "Error retrieving flyers", 
+            error: error.message 
+        });
+    }
 });
 
 app.get('/api/users', async (req, res) => {

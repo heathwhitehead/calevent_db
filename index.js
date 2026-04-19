@@ -66,10 +66,8 @@ app.get('/api/flyers', async (req, res) => {
         // 1. Initialize an empty query object
         let query = {};
 
-        // 2. Handle Location Filtering
-        // Example: /api/flyers?location=Lawrence
-        if (req.query.location) {
-            query.location = req.query.location;
+        if (req.query.city) {
+            query.city = req.query.city;
         }
 
         // 3. Handle Date Range Filtering (YYYY-MM-DD)
@@ -129,7 +127,7 @@ app.post('/api/flyers', upload.single('image'), async (req, res) => {
             capacity: Number(req.body.capacity),
             timeOfEvent: req.body.timeOfEvent,
             dateOfEvent: req.body.dateOfEvent,
-            location: req.body.location,
+            city: req.body.city,
             organizer: req.body.organizer,
 			usersInterested: 0
         });
@@ -161,7 +159,7 @@ app.post('/api/users', async (req, res) => {
             email: email.toLowerCase(),
             username: username,
 			password: password,
-            current_location: "Lawrence, KS"
+            current_city: "Lawrence, KS"
         });
 
         // 4. Save to MongoDB
@@ -177,11 +175,11 @@ app.post('/api/users', async (req, res) => {
 });
 
 // UPDATES LOCATION FOR LOGGED IN USER
-app.patch('/api/users/:email/location', async (req, res) => {
+app.patch('/api/users/:email/city', async (req, res) => {
     try {
         const updatedUser = await User.findOneAndUpdate(
             { email: req.params.email.toLowerCase() },
-            { current_location: req.body.new_location },
+            { current_city: req.body.new_city },
             { new: true }
         );
 

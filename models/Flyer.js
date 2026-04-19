@@ -11,7 +11,7 @@ const flyerSchema = new mongoose.Schema({
   timeOfEvent: String,
   dateOfEvent: String,
   city: String,
-  usersInterested: Number,
+  usersInterested: {type: Number, default: 0},
   location: String
 });
 

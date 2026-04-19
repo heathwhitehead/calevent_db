@@ -115,29 +115,41 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.post('/api/flyers', upload.single('image'), async (req, res) => {
-	try {
-		if (!req.file) {
-			return res.status(400).send("No image uploaded");
-		}
-		
-		const newFlyer = new Flyer({
+    try {
+        if (!req.file) {
+            return res.status(400).send("No image uploaded");
+        }
+
+        // 1. Create the new Flyer with the user's email attached
+        const newFlyer = new Flyer({
             title: req.body.title,
-            image_url: req.file.location, // The link to the Space!
+            image_url: req.file.location, 
             description: req.body.description,
             capacity: Number(req.body.capacity),
             timeOfEvent: req.body.timeOfEvent,
             dateOfEvent: req.body.dateOfEvent,
             city: req.body.city,
+            location: req.body.location,
             organizer: req.body.organizer,
-			usersInterested: 0
+            usersInterested: 0,
+            user_email: req.body.user_email // Added this
         });
 
         const savedFlyer = await newFlyer.save();
+
+        // 2. Update the User's "posted_events" array
+        // We find the user by ID and push the NEW flyer's ID into their list
+        await User.findByIdAndUpdate(
+            req.body.userId, 
+            { $push: { posted_events: savedFlyer._id } }
+        );
+
         res.status(201).json(savedFlyer);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "Upload failed", error: error.message });
     }
-})
+});
 
 app.post('/api/users', async (req, res) => {
     try {
@@ -188,6 +200,37 @@ app.patch('/api/users/:email/city', async (req, res) => {
         }
 
         res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.patch('/api/events/:flyerId/like', async (req, res) => {
+    try {
+        const { flyerId } = req.params;
+        const { userId } = req.body; // Sent from your logged-in state
+
+        // 1. Update the User: Add flyerId to liked_events array
+        const userUpdate = await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { liked_events: flyerId } }, // Prevents duplicates
+            { new: true }
+        );
+
+        if (!userUpdate) return res.status(404).json({ message: "User not found" });
+
+        // 2. Update the Flyer: Increment the interest count
+        const flyerUpdate = await Flyer.findByIdAndUpdate(
+            flyerId,
+            { $inc: { usersInterested: 1 } },
+            { new: true }
+        );
+
+        res.json({
+            message: "Success!",
+            totalInterest: flyerUpdate.usersInterested,
+            userLikes: userUpdate.liked_events
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

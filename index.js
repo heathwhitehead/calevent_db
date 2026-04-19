@@ -114,6 +114,19 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
+app.get('/api/users/:id', async (req, res) => {
+  const { id } = req.params; 
+  // 1. Look up the user in your database using the 'id'
+  // 2. Send it back as JSON
+  const user = await User.findById(id); 
+  if (user) {
+    res.json(user); // This sends the JSON your front-end is looking for
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+});
+
+
 app.post('/api/flyers', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {

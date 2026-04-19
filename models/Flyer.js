@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 
 const flyerSchema = new mongoose.Schema({
   title: String,
+  description: String,
+  organizer: String,
   image_url: String, // link send to digital ocean spaces
   user_email: String,
   createdAt: { type: Date, default: Date.now },
